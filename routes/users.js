@@ -26,7 +26,7 @@ module.exports = {
                 userId: saveUser._id
             }
             const token = await getToken(payload)
-            return res.status(200).json({ access: true, authenticate: token })
+            return res.status(200).json({ access: true, authenticate: `Bearer ${token}` })
         })
     },
     login: () => {
