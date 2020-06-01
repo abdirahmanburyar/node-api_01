@@ -2,6 +2,7 @@ const router = require('express').Router()
 const Users = require("../models/User")
 const { sign } = require('jsonwebtoken')
 const { registerValidation, loginValidation } = require('../utils/validations')
+const { uploadImg } = require('../multer')
 const passport = require('passport')
 const getToken = async (payload) => {
     return await sign(payload, 'thisissecret', { expiresIn: '1 h'})
@@ -43,8 +44,12 @@ module.exports = {
         })
     },
     profile: () => {
-        return router.get('/profile', passport.authenticate('jwt', { session: false }), async (req, res) => {
-            res.status(200).json({ user: req.user._id})
+        return router.post('/profile', passport.authenticate('jwt', { session: false }), uploadImg(), async (req, res) => {
+            const userPrfile = await Users.findOneAndUpdate({_id: req.user._id}, { $set: { photo: req.file.filename }})
+            if(userPrfile){
+                const user = await Users.findById({ _id: req.user._id})
+                return res.status(200).json({ userProfile: user })
+            }
         })
     }
 }

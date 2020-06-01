@@ -12,7 +12,8 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    createdAt: String
+    createdAt: String,
+    photo: String
 })
 
 userSchema.pre('save', function(next){

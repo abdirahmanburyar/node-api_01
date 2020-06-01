@@ -3,12 +3,12 @@ const app = express()
 const bodyParser = require('body-parser')
 const controller = require('./routes/users')
 const mongoose = require('mongoose')
-
-//connecting to the mongo database
-
+const path = require('path')
+app.use(express.static(path.join(__dirname, './assets')))
 const passport = require('passport')
 app.use(passport.initialize())
 require('./auth/passport')(passport)
+//connecting to the mongo database
 mongoose.connect('mongodb://mongo:27017/digitaloccean-docker',
 {useNewUrlParser: true, useUnifiedTopology: true},
  () => {
