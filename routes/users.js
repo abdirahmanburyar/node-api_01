@@ -9,6 +9,7 @@ const getToken = async (payload) => {
 }
 module.exports = {
     registerUser: () => {
+
         return router.post('/register', async (req, res) => {
             const { errors, isValid } = registerValidation(req.body)
             if(!isValid) return res.status(400).json(errors)
@@ -31,16 +32,19 @@ module.exports = {
     },
     login: () => {
         return router.post('/login', async (req, res) => {
-            const { errors, isValid } = loginValidation(req.body)
-            const checkUser = await Users.findOne({ email: req.body.email })
-            if(!checkUser) return res.status(400).json({ Err: 'User not found' })
-            const checkUserPass = await checkUser.checkPassword(req.body.password)
-            if(!checkUserPass) return res.status(400).json({ Err: 'Email/Password incorrent' })
-            const payload = {
-                userId: checkUser._id
-            }
-            const token = await getToken(payload)
-            return res.status(200).json({ access: true, authenticate: `Bearer ${token}` })
+            try {
+                const { errors, isValid } = loginValidation(req.body)
+                if(!isValid) return res.status(400).json(errors)
+                const checkUser = await Users.findOne({ email: req.body.email })
+                if(!checkUser) return res.status(400).json({ Err: 'User not found' })
+                const checkUserPass = await checkUser.checkPassword(req.body.password)
+                if(!checkUserPass) return res.status(400).json({ Err: 'Email/Password incorrent' })
+                const payload = {
+                    userId: checkUser._id
+                }
+                const token = await getToken(payload)
+                return res.status(200).json({ access: true, authenticate: `Bearer ${token}` })
+            }catch(e){ console.log(e)}
         })
     },
     profile: () => {
