@@ -27,7 +27,7 @@ module.exports = {
                 userId: saveUser._id
             }
             const token = await getToken(payload)
-            return res.status(200).json({ access: true, authenticate: `Bearer ${token}` })
+            return res.status(200).json({ access: true, authenticate: `Bearer ${token}`, userId: saveUser._id })
         })
     },
     login: () => {
@@ -43,7 +43,7 @@ module.exports = {
                     userId: checkUser._id
                 }
                 const token = await getToken(payload)
-                return res.status(200).json({ access: true, authenticate: `Bearer ${token}` })
+                return res.status(200).json({ access: true, authenticate: `Bearer ${token}`, userId: checkUser._id })
             }catch(e){ console.log(e)}
         })
     },
