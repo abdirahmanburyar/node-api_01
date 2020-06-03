@@ -26,6 +26,7 @@ app.use(logger("dev"))
 app.use('/api/users/', controller.registerUser())
 app.use('/api/users/', controller.login())
 app.use('/api/users/', controller.profile())
+app.use('/api/users/', controller.fetchAllUsers())
 
 const PORT = 5000
 app.listen(PORT, () => {

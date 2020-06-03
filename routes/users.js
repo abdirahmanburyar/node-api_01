@@ -47,6 +47,17 @@ module.exports = {
             }catch(e){ console.log(e)}
         })
     },
+    fetchAllUsers: () => {
+        return router.get('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
+            try {
+                const users = await Users.find()
+                if(users.length < 0) return res.status(400).json({ msg: 'Zero Users'})
+                return res.status(200).json({ users })
+            }catch(e){
+                console.log(e)
+            }
+        })
+    },
     profile: () => {
         return router.post('/profile', passport.authenticate('jwt', { session: false }), uploadImg(), async (req, res) => {
             const userPrfile = await Users.findOneAndUpdate({_id: req.user._id}, { $set: { photo: req.file.filename }})
