@@ -1,9 +1,12 @@
 const router = require('express').Router()
 const Users = require("../models/User")
+require('dotenv').config()
 const { sign } = require('jsonwebtoken')
 const { registerValidation, loginValidation } = require('../utils/validations')
 const { uploadImg } = require('../multer')
 const passport = require('passport')
+const redis = require('redis')
+const redisClient = redis.createClient(process.env.REDIS_URI || { host: '127.0.0.1'})
 const getToken = async (payload) => {
     return await sign(payload, 'thisissecret', { expiresIn: '1 h'})
 }
@@ -32,6 +35,7 @@ module.exports = {
     },
     login: () => {
         return router.post('/login', async (req, res) => {
+            console.log(req.headers.authorization)
             try {
                 const { errors, isValid } = loginValidation(req.body)
                 if(!isValid) return res.status(400).json(errors)
@@ -43,6 +47,7 @@ module.exports = {
                     userId: checkUser._id
                 }
                 const token = await getToken(payload)
+                // await redisClient.set(token, checkUser._id)
                 return res.status(200).json({ access: true, authenticate: `Bearer ${token}`, userId: checkUser._id })
             }catch(e){ console.log(e)}
         })
