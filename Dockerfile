@@ -12,4 +12,4 @@ EXPOSE 5000
 
 VOLUME ./:/usr/src/nodejs
 
-CMD ["npm","start"]
+CMD ["/bin/bash"]
