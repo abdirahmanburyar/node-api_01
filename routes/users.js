@@ -63,12 +63,16 @@ module.exports = {
         })
     },
     profile: () => {
-        return router.post('/profile', passport.authenticate('jwt', { session: false }), uploadImg(), async (req, res) => {
-            const userPrfile = await Users.findOneAndUpdate({_id: req.user._id}, { $set: { photo: req.file.filename }})
-            if(userPrfile){
-                const user = await Users.findById({ _id: req.user._id})
-                return res.status(200).json({ userProfile: user })
+        return router.get('/profile/:userId', passport.authenticate('jwt', { session: false }), async (req, res) => {
+            const user = await Users.findById(req.params.userId)
+             if(!user){
+                return res.status(400).json({ Err: 'user not found'})
+             }
+             if(req.user._id.toString() !== req.params.userId.toString()){
+                 return res.status(401).json({ Err: 'Unauthorized access'})
             }
+            return res.status(200).json(user)
+
         })
     }
 }
