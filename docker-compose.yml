@@ -13,6 +13,7 @@ services:
             - ./:/usr/src/nodejs
         environment: 
             REDIS_URI: redis://redis:6379
+            MONGO_URI: mongodb://mongo:27017/digitaloccean-docker
     mongo:
         image: mongo:latest
         container_name: mongodb

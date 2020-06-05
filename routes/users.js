@@ -5,14 +5,16 @@ const { sign } = require('jsonwebtoken')
 const { registerValidation, loginValidation } = require('../utils/validations')
 const { uploadImg } = require('../multer')
 const passport = require('passport')
-const redis = require('redis')
-const redisClient = redis.createClient(process.env.REDIS_URI || { host: '127.0.0.1'})
+
+const { handleSignIn, createSession, getAuthTokenId } = require('./controllers/sign')
+
 const getToken = async (payload) => {
     return await sign(payload, 'thisissecret', { expiresIn: '1 h'})
 }
+
+
 module.exports = {
     registerUser: () => {
-
         return router.post('/register', async (req, res) => {
             const { errors, isValid } = registerValidation(req.body)
             if(!isValid) return res.status(400).json(errors)
@@ -35,21 +37,18 @@ module.exports = {
     },
     login: () => {
         return router.post('/login', async (req, res) => {
-            console.log(req.headers.authorization)
-            try {
-                const { errors, isValid } = loginValidation(req.body)
-                if(!isValid) return res.status(400).json(errors)
-                const checkUser = await Users.findOne({ email: req.body.email })
-                if(!checkUser) return res.status(400).json({ Err: 'User not found' })
-                const checkUserPass = await checkUser.checkPassword(req.body.password)
-                if(!checkUserPass) return res.status(400).json({ Err: 'Email/Password incorrent' })
-                const payload = {
-                    userId: checkUser._id
-                }
-                const token = await getToken(payload)
-                // await redisClient.set(token, checkUser._id)
-                return res.status(200).json({ access: true, authenticate: `Bearer ${token}`, userId: checkUser._id })
-            }catch(e){ console.log(e)}
+            const { errors, isValid } = loginValidation(req.body)
+            if(!isValid) return res.status(400).json(errors)
+            const { authorization } = req.headers
+            return await authorization ? getAuthTokenId(req, res) : 
+                handleSignIn(req, res)
+                    .then(data => {
+                        return data._id && data.email ? createSession(data) : Promise.reject(data)
+                    })
+                    .then(data => {
+                        return res.status(200).json(data)
+                    })
+                    .catch(err => res.status(400).json(err))
         })
     },
     fetchAllUsers: () => {
