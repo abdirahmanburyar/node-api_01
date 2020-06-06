@@ -40,7 +40,8 @@ module.exports = {
             const { errors, isValid } = loginValidation(req.body)
             if(!isValid) return res.status(400).json(errors)
             const { authorization } = req.headers
-            return await authorization ? getAuthTokenId(req, res) : 
+            return await authorization ? getAuthTokenId(req, res)
+                 : 
                 handleSignIn(req, res)
                     .then(data => {
                         return data._id && data.email ? createSession(data) : Promise.reject(data)

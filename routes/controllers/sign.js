@@ -27,7 +27,7 @@ const setToken = (key, value) => {
 const createSession = async (data) => {
     const { _id } = data
     const token = await setTokenId(data)
-    return await setToken(token, _id)
+    return await setToken(`Bearer ${token}`, _id)
         .then(() => {
             return { success: 'true', userId: _id, token: `Bearer ${token}` }
         })
@@ -35,14 +35,14 @@ const createSession = async (data) => {
     
 }
 
-const getAuthTokenId = (req, res) => {
+const getAuthTokenId = async (req, res) => {
     const { authorization } = req.headers
-    return redisClient.get(`${authorization}`, (err, reply) => {
+    console.log(authorization)
+    return await redisClient.get(authorization, (err, reply) => {
         if(err || !reply){
-            console.log(reply)
             return res.status(400).json('Unathorized')
         }
-        return res.status(200).json({_id: reply})
+        return res.status(200).json({ id: reply})
     })
 }
 
